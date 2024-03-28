@@ -4,7 +4,9 @@ Overall, the program is designed to search for specific patterns within files in
 My usecase for this is to iterate over (on large-scale) of malware samples to find out in which language they are written.
 
 The provided Golang code is simple and easy to extend to your specific needs.
-*It's my first golang program so of course this code can be improved (e.g using go routines, buffio) and they are better ways todo it overall.*
+
+
+
 
 Example: you may add the string from upx to the paterns section to check if it exists
 
@@ -15,6 +17,7 @@ Example: you may add the string from upx to the paterns section to check if it e
 ```
 
 ## Note
+*It's my first golang program so of course this code can be improved (e.g using go routines, buffio) and they are better ways todo it overall.*
 
 - the search is not bullet proof.
 - they are ways to obfuscate a binary where this string search approach will not work.

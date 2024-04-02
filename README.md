@@ -8,7 +8,7 @@ The provided Golang code is simple and easy to extend to your specific needs.
 
 
 
-Example: you may add the string from upx to the paterns section to check if it exists
+Example: you can add the string pattern for the UPX packer  
 
 ```
 	patterns := map[string][]string{
@@ -19,9 +19,9 @@ Example: you may add the string from upx to the paterns section to check if it e
 ## Note
 *It's my first golang program so of course this code can be improved (e.g using go routines, buffio) and they are better ways todo it overall.*
 
-- the search is not bullet proof.
-- they are ways to obfuscate a binary where this string search approach will not work.
-- also other tools exists like capa (from Mandiant) which have better results overall.
+- the search is not bullet proof
+- they are ways to obfuscate a binary - where this string search approach will not work
+- also other tools exists like capa (from Mandiant) which have better results overall
 
 
 ## Usage
@@ -36,5 +36,5 @@ OR
 
 Build the program with:
 `go build -ldflags "-s -w"`
-and execute it: `./compile_info directory_to_scan`
+and execute it: `./compiler_info directory_to_scan`
 

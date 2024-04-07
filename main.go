@@ -3,77 +3,40 @@
 Author: https://github.com/lulzc
 
 ToDo:
-- using bufio to speed up
--- cache stdout (fmt = slow)
+- cache stdout / add progress bar
+- write output to db
 
 */
 
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"log"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 )
 
-func searchFile(filePath string, pattern string) (bool, error) {
-	// read the file contents
-	content, err := os.ReadFile(filePath)
+func scanDir(filePath string) {
+
+	files, err := os.ReadDir(filePath)
 	if err != nil {
-		return false, err
+		log.Fatal(err)
 	}
 
-	// convert the byte slice to a string
-	fileContent := string(content)
+	for _, file := range files {
+		compilerInfov2(filePath + file.Name())
 
-	lines := strings.Split(fileContent, "\n")
-	for _, line := range lines {
-		// check if the line contains the pattern
-		if strings.Contains(line, pattern) {
-			return true, nil
-		}
 	}
-	return false, nil
+
 }
 
-func iterate(path string, patterns map[string][]string) (bool, error) {
-	var patternFound bool
-
-	err := filepath.Walk(path, func(filePath string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if !info.IsDir() {
-			for key, patternList := range patterns {
-				for _, pattern := range patternList {
-					found, err := searchFile(filePath, pattern)
-					if err != nil {
-						return err
-					}
-					if found {
-						patternFound = true
-						fmt.Printf("pattern %s found on %s \n", key, filePath)
-						break
-					}
-				}
-			}
-		}
-		return nil
-	})
-
-	return patternFound, err
-}
-
-func main() {
-
-	start := time.Now()
-
-	directoryPath := os.Args[1]
-
+// using buffio NewReader instead of NewScanner
+// NewScanner can be problematic for large files and adapted to size
+func compilerInfov2(file string) error {
 	// define patterns for different cases
-	// todo: string[] review
 	patterns := map[string][]string{
 		"rust":  {"RUST_BACKTRACE=1", "Option::unwrap()", "Result::unwrap()"},
 		"go":    {"Go build ID:", "go.buildid", "runtime.gcWork"},
@@ -81,11 +44,44 @@ func main() {
 		"mingw": {"Mingw runtime failure:", "_Jv_RegisterClasses"},
 	}
 
-	patternFound, err := iterate(directoryPath, patterns)
+	f, err := os.Open(file)
 	if err != nil {
-		fmt.Printf("Error searching file for %s\n", err)
+		log.Fatal(err)
+		return err
 	}
-	fmt.Println(patternFound) // for testing ... boolean value for patterns
+	defer f.Close()
+
+	reader := bufio.NewReader(f)
+
+	for {
+		line, err := reader.ReadString('\n')
+		if err != nil {
+			break
+		}
+
+		for key, pat := range patterns {
+			for _, p := range pat {
+				if strings.Contains(line, p) {
+					fmt.Printf("%s found pattern: %s\n", file, key)
+				}
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
+func main() {
+
+	start := time.Now()
+
+	filePath := os.Args[1]
+
+	scanDir(filePath)
+
+	// run on single file
+	//compilerInfov2(filePath)
 
 	elapsed := time.Since(start)
 	fmt.Println("Execution time:", elapsed)

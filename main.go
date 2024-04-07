@@ -3,7 +3,7 @@
 Author: https://github.com/lulzc
 
 ToDo:
-- cache stdout / add progress bar
+- cache stdout and add progress bar
 - write output to db
 
 */
@@ -33,8 +33,8 @@ func scanDir(filePath string) {
 
 }
 
-// using buffio NewReader instead of NewScanner
-// NewScanner can be problematic for large files and adapted to size
+// using bufio NewReader instead of NewScanner
+// NewScanner can be problematic for large files and needs to be adapted with the buffer size
 func compilerInfov2(file string) error {
 	// define patterns for different cases
 	patterns := map[string][]string{
